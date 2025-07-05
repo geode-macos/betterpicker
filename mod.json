@@ -1,0 +1,31 @@
+{
+    "geode": "4.6.2",
+    "gd": {
+        "win": "2.2074",
+        "android": "2.2074",
+        "mac": "2.2074",
+        "ios": "2.2074"
+    },
+    "id": "flow.betterpicker",
+    "name": "betterpicker",
+    "version": "v1.0.0",
+    "developer": "flow",
+    "description": "",
+    "resources": {
+        "sprites": ["resources/*.png"]
+    },
+    "settings": {
+        "color-space": {
+            "type": "string",
+            "name": "Color Space",
+            "default": "HSV",
+            "one-of": ["HSV", "HSL", "OkHSV", "OkHSL"]
+        },
+        "slider-mode": {
+            "type": "string",
+            "name": "Slider Mode",
+            "default": "Hue",
+            "one-of": ["Hue", "Saturation"]
+        }
+    }
+}
