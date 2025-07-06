@@ -35,11 +35,11 @@ ConvInfo currentConvInfo() {
 }
 
 ccColor3B tripleToB(Vec3 v) {
-    return ccColor3B(
+    return ccColor3B {
         (GLubyte)(std::clamp(v.x, 0.0f, 1.0f) * 255.f),
         (GLubyte)(std::clamp(v.y, 0.0f, 1.0f) * 255.f),
         (GLubyte)(std::clamp(v.z, 0.0f, 1.0f) * 255.f)
-    );
+    };
 }
 
 class $modify(MyCCControlColourPicker, CCControlColourPicker) {
@@ -274,9 +274,9 @@ void MyCCControlColourPicker::hsvlChanged(bool setRgb, bool redrawSquare) {
                 m_fields->squareDraw->drawRect(
                     CCPoint(x, y),
                     CCPoint(x + 2, y + 2),
-                    ccColor4F(v.x, v.y, v.z, 1.0),
+                    ccColor4F {v.x, v.y, v.z, 1.0},
                     0.0,
-                    ccColor4F(0.0, 0.0, 0.0, 0.0)
+                    ccColor4F {0.0, 0.0, 0.0, 0.0}
                 );
             }
         }
@@ -287,9 +287,9 @@ void MyCCControlColourPicker::hsvlChanged(bool setRgb, bool redrawSquare) {
         m_fields->sliderDraw->drawRect(
             CCPoint(0, y),
             CCPoint(20, y + 1),
-            ccColor4F(v.x, v.y, v.z, 1.0),
+            ccColor4F {v.x, v.y, v.z, 1.0},
             0.0,
-            ccColor4F(0.0, 0.0, 0.0, 0.0)
+            ccColor4F {0.0, 0.0, 0.0, 0.0}
         );
     }
 }
