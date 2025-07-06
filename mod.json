@@ -20,12 +20,6 @@
             "name": "Color Space",
             "default": "HSV",
             "one-of": ["HSV", "HSL", "OkHSV", "OkHSL"]
-        },
-        "slider-mode": {
-            "type": "string",
-            "name": "Slider Mode",
-            "default": "Hue",
-            "one-of": ["Hue", "Saturation"]
         }
     }
 }
