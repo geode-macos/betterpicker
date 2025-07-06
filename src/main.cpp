@@ -11,25 +11,27 @@ using namespace geode::prelude;
 #include <Geode/ui/GeodeUI.hpp>
 #include <TouchArea.hpp>
 
-struct ConvCbs {
+struct ConvInfo {
     std::function<Vec3(float, float, float)> fromRgb;
     std::function<Vec3(float, float, float)> toRgb;
+    float sliderVL;
+    std::string vlLabel;
 };
 
-ConvCbs currentConvCbs() {
+ConvInfo currentConvInfo() {
     auto space = Mod::get()->getSettingValue<std::string>("color-space");
 
     if (space == "HSV") {
-        return {rgb_to_hsv, hsv_to_rgb};
+        return {rgb_to_hsv, hsv_to_rgb, 1.0, "V:"};
     } else if (space == "HSL") {
-        return {rgb_to_hsl, hsl_to_rgb};
+        return {rgb_to_hsl, hsl_to_rgb, 0.5, "L:"};
     } else if (space == "OkHSV") {
-        return {srgb_to_okhsv, okhsv_to_srgb};
+        return {srgb_to_okhsv, okhsv_to_srgb, 1.0, "V:"};
     } else if (space == "OkHSL") {
-        return {srgb_to_okhsl, okhsl_to_srgb};
+        return {srgb_to_okhsl, okhsl_to_srgb, 0.6, "L:"};
     }
 
-    return {rgb_to_hsv, hsv_to_rgb};
+    return {rgb_to_hsv, hsv_to_rgb, 1.0, "V:"};
 }
 
 ccColor3B tripleToB(Vec3 v) {
@@ -48,6 +50,10 @@ class $modify(MyCCControlColourPicker, CCControlColourPicker) {
         CCSprite* sliderHandle;
         Vec3 hsvl;
         int squareDrawThrottle;
+        TextInput* hInput;
+        TextInput* sInput;
+        TextInput* vlInput;
+        CCLabelBMFont* vlLabel;
 
         EventListener<SettingChangedFilterV3> m_settingListener = {
             [this](std::shared_ptr<SettingV3> setting) { return ListenerResult::Propagate; },
@@ -170,6 +176,55 @@ bool MyCCControlColourPicker::init() {
 
     addChild(menu);
 
+    m_fields->hInput = geode::TextInput::create(50.0, "");
+    m_fields->hInput->setScale(0.6);
+    m_fields->hInput->setPosition(-61, -75);
+    m_fields->hInput->setCommonFilter(CommonFilter::Uint);
+    m_fields->hInput->setCallback([this](auto _s) {
+        std::string s = _s == "" ? "0" : _s;
+        auto n = std::clamp(geode::utils::numFromString<uint32_t>(s).unwrap(), 0u, 360u);
+        m_fields->hsvl.x = (float)n / 360.0;
+        hsvlChanged(true, true);
+    });
+    addChild(m_fields->hInput);
+
+    m_fields->sInput = geode::TextInput::create(50.0, "");
+    m_fields->sInput->setScale(0.6);
+    m_fields->sInput->setPosition(-21, -75);
+    m_fields->sInput->setCommonFilter(CommonFilter::Uint);
+    m_fields->sInput->setCallback([this](auto _s) {
+        std::string s = _s == "" ? "0" : _s;
+        auto n = std::clamp(geode::utils::numFromString<uint32_t>(s).unwrap(), 0u, 100u);
+        m_fields->hsvl.y = (float)n / 100.0;
+        hsvlChanged(true, false);
+    });
+    addChild(m_fields->sInput);
+
+    m_fields->vlInput = geode::TextInput::create(50.0, "");
+    m_fields->vlInput->setScale(0.6);
+    m_fields->vlInput->setPosition(19, -75);
+    m_fields->vlInput->setCommonFilter(CommonFilter::Uint);
+    m_fields->vlInput->setCallback([this](auto _s) {
+        std::string s = _s == "" ? "0" : _s;
+        auto n = std::clamp(geode::utils::numFromString<uint32_t>(s).unwrap(), 0u, 100u);
+        m_fields->hsvl.z = (float)n / 100.0;
+        hsvlChanged(true, false);
+    });
+    addChild(m_fields->vlInput);
+
+    auto hLabel = CCLabelBMFont::create("H:", "goldFont.fnt");
+    hLabel->setScale(0.5);
+    hLabel->setPosition(-61, -57);
+    addChild(hLabel);
+    auto sLabel = CCLabelBMFont::create("S:", "goldFont.fnt");
+    sLabel->setScale(0.5);
+    sLabel->setPosition(-21, -57);
+    addChild(sLabel);
+    m_fields->vlLabel = CCLabelBMFont::create("", "goldFont.fnt");
+    m_fields->vlLabel->setScale(0.5);
+    m_fields->vlLabel->setPosition(19, -57);
+    addChild(m_fields->vlLabel);
+
     return true;
 }
 
@@ -181,33 +236,35 @@ void MyCCControlColourPicker::setColorValue(ccColor3B const& v) {
     m_rgb = v;
     m_delegate->colorValueChanged(m_rgb);
 
-    m_fields->hsvl = currentConvCbs().fromRgb((float)v.r / 255.f, (float)v.g / 255.f, (float)v.b / 255.f);
+    m_fields->hsvl = currentConvInfo().fromRgb((float)v.r / 255.f, (float)v.g / 255.f, (float)v.b / 255.f);
     hsvlChanged(false, true);
 }
 
 void MyCCControlColourPicker::hsvlChanged(bool setRgb, bool redrawSquare) {
-    auto conv = currentConvCbs();
+    m_fields->hInput->setString(
+        geode::utils::numToString((uint32_t)std::round(std::clamp(m_fields->hsvl.x, 0.0f, 1.0f) * 360.0))
+    );
+    m_fields->sInput->setString(
+        geode::utils::numToString((uint32_t)std::round(std::clamp(m_fields->hsvl.y, 0.0f, 1.0f) * 100.0))
+    );
+    m_fields->vlInput->setString(
+        geode::utils::numToString((uint32_t)std::round(std::clamp(m_fields->hsvl.z, 0.0f, 1.0f) * 100.0))
+    );
+
+    auto conv = currentConvInfo();
+
+    m_fields->vlLabel->setString(conv.vlLabel.c_str());
 
     if (setRgb) {
         m_rgb = tripleToB(conv.toRgb(m_fields->hsvl.x, m_fields->hsvl.y, m_fields->hsvl.z));
         m_delegate->colorValueChanged(m_rgb);
     }
 
-    float sliderVL = 1.0;
-    {
-        auto space = Mod::get()->getSettingValue<std::string>("color-space");
-        if (space == "HSL") {
-            sliderVL = 0.5;
-        } else if (space == "OkHSL") {
-            sliderVL = 0.6;
-        }
-    }
-
     m_fields->pickerDot->setPosition(CCPoint(-80 + m_fields->hsvl.y * 120.0, -45 + m_fields->hsvl.z * 120.0));
     m_fields->pickerDot->setColor(m_rgb);
 
     m_fields->sliderHandle->setPositionY(-45 + m_fields->hsvl.x * 120.0);
-    m_fields->sliderHandle->setColor(tripleToB(conv.toRgb(m_fields->hsvl.x, 1.0, sliderVL)));
+    m_fields->sliderHandle->setColor(tripleToB(conv.toRgb(m_fields->hsvl.x, 1.0, conv.sliderVL)));
 
     if (redrawSquare) {
         m_fields->squareDraw->clear();
@@ -226,7 +283,7 @@ void MyCCControlColourPicker::hsvlChanged(bool setRgb, bool redrawSquare) {
     }
     m_fields->sliderDraw->clear();
     for (int y = 0; y < 120; y += 1) {
-        auto v = conv.toRgb(y / 120.f, 1.0, sliderVL);
+        auto v = conv.toRgb(y / 120.f, 1.0, conv.sliderVL);
         m_fields->sliderDraw->drawRect(
             CCPoint(0, y),
             CCPoint(20, y + 1),
