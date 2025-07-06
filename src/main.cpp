@@ -1,23 +1,9 @@
 #include <Geode/Geode.hpp>
 #include <algorithm>
 
-#include "GUI/CCControlExtension/CCControlColourPicker.h"
-#include "GUI/CCControlExtension/CCControlHuePicker.h"
-#include "GUI/CCControlExtension/CCControlSaturationBrightnessPicker.h"
-#include "Geode/cocos/cocoa/CCGeometry.h"
-#include "Geode/cocos/draw_nodes/CCDrawNode.h"
-#include "Geode/cocos/platform/win32/CCGL.h"
-#include "Geode/cocos/sprite_nodes/CCSprite.h"
-#include "Geode/cocos/sprite_nodes/CCSpriteBatchNode.h"
-#include "Geode/loader/Event.hpp"
-#include "Geode/loader/Log.hpp"
-#include "Geode/loader/SettingV3.hpp"
-#include "ccTypes.h"
-
 using namespace geode::prelude;
 
-#include <lib.rs.h>
-
+#include <Color.hpp>
 #include <Geode/modify/CCControlColourPicker.hpp>
 #include <Geode/modify/ColorSelectPopup.hpp>
 #include <Geode/modify/GJBaseGameLayer.hpp>
@@ -26,8 +12,8 @@ using namespace geode::prelude;
 #include <TouchArea.hpp>
 
 struct ConvCbs {
-    std::function<ColorTriple(float, float, float)> fromRgb;
-    std::function<ColorTriple(float, float, float)> toRgb;
+    std::function<Vec3(float, float, float)> fromRgb;
+    std::function<Vec3(float, float, float)> toRgb;
 };
 
 ConvCbs currentConvCbs() {
@@ -38,16 +24,20 @@ ConvCbs currentConvCbs() {
     } else if (space == "HSL") {
         return {rgb_to_hsl, hsl_to_rgb};
     } else if (space == "OkHSV") {
-        return {rgb_to_okhsv, okhsv_to_rgb};
+        return {srgb_to_okhsv, okhsv_to_srgb};
     } else if (space == "OkHSL") {
-        return {rgb_to_okhsl, okhsl_to_rgb};
+        return {srgb_to_okhsl, okhsl_to_srgb};
     }
 
     return {rgb_to_hsv, hsv_to_rgb};
 }
 
-ccColor3B tripleToB(ColorTriple v) {
-    return ccColor3B((GLubyte)(v.x * 255.f), (GLubyte)(v.y * 255.f), (GLubyte)(v.z * 255.f));
+ccColor3B tripleToB(Vec3 v) {
+    return ccColor3B(
+        (GLubyte)(std::clamp(v.x, 0.0f, 1.0f) * 255.f),
+        (GLubyte)(std::clamp(v.y, 0.0f, 1.0f) * 255.f),
+        (GLubyte)(std::clamp(v.z, 0.0f, 1.0f) * 255.f)
+    );
 }
 
 class $modify(MyCCControlColourPicker, CCControlColourPicker) {
@@ -56,7 +46,7 @@ class $modify(MyCCControlColourPicker, CCControlColourPicker) {
         CCDrawNode* sliderDraw;
         CCSprite* pickerDot;
         CCSprite* sliderHandle;
-        ColorTriple hsvl;
+        Vec3 hsvl;
         int squareDrawThrottle;
 
         EventListener<SettingChangedFilterV3> m_settingListener = {
@@ -154,7 +144,7 @@ bool MyCCControlColourPicker::init() {
         [this](CCPoint v) {
             m_fields->hsvl.x = std::clamp(v.y, 0.f, 120.f) / 120.0;
             hsvlChanged(true, m_fields->squareDrawThrottle == 0);
-            m_fields->squareDrawThrottle = (m_fields->squareDrawThrottle + 1) % 10;
+            m_fields->squareDrawThrottle = (m_fields->squareDrawThrottle + 1) % 8;
         },
         [this](CCPoint v) {
             m_fields->hsvl.x = std::clamp(v.y, 0.f, 120.f) / 120.0;
@@ -176,7 +166,7 @@ bool MyCCControlColourPicker::init() {
     btn->setPosition(65.0, -68.0);
     menu->addChild(btn);
     menu->setPosition(CCPoint(0, 0));
-    menu->setTouchPriority(-800);
+    menu->setTouchPriority(CCTouchDispatcher::get()->getForcePrio() - 1);
 
     addChild(menu);
 

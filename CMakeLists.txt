@@ -8,8 +8,6 @@ else()
 endif()
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
-set(CARGO_TARGET_DIR ${CMAKE_SOURCE_DIR}/rustlib/target)
-
 project(betterpicker VERSION 1.0.0)
 
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
@@ -26,14 +24,5 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     include
 )
 add_subdirectory($ENV{GEODE_SDK} ${CMAKE_CURRENT_BINARY_DIR}/geode)
-
-target_include_directories(
-        ${PROJECT_NAME}
-        PUBLIC
-        ${CARGO_TARGET_DIR}/cxxbridge/rustlib/src/
-)
-target_sources(${PROJECT_NAME} PRIVATE ${CARGO_TARGET_DIR}/cxxbridge/rustlib/src/lib.rs.cc)
-target_link_libraries(${PROJECT_NAME} ${CARGO_TARGET_DIR}/debug/rustlib.lib)
-target_link_libraries(${PROJECT_NAME} kernel32 ntdll userenv ws2_32 dbghelp)
 
 setup_geode_mod(${PROJECT_NAME})
