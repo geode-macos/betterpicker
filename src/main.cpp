@@ -108,6 +108,7 @@ bool MyCCControlColourPicker::init() {
     addChild(m_fields->pickerDot);
     m_fields->pickerDot->addChild(pickerDotOutline);
     m_fields->pickerDot->setPosition(CCPoint(-80, -45));
+    m_fields->pickerDot->setZOrder(1);
     pickerDotOutline->setAnchorPoint(CCPoint(0, 0));
 
     auto sliderHandleOutline = CCSprite::create("SliderHandleOutline.png"_spr);
@@ -115,6 +116,7 @@ bool MyCCControlColourPicker::init() {
     addChild(m_fields->sliderHandle);
     m_fields->sliderHandle->addChild(sliderHandleOutline);
     m_fields->sliderHandle->setPosition(CCPoint(65, -45));
+    m_fields->sliderHandle->setZOrder(1);
     sliderHandleOutline->setAnchorPoint(CCPoint(0, 0));
 
     auto squareTouch = TouchArea::create(
@@ -236,6 +238,15 @@ void MyCCControlColourPicker::setColorValue(ccColor3B const& v) {
     m_delegate->colorValueChanged(m_rgb);
 
     m_fields->hsvl = currentConvInfo().fromRgb((float)v.r / 255.f, (float)v.g / 255.f, (float)v.b / 255.f);
+    if (isnan(m_fields->hsvl.x)) {
+        m_fields->hsvl.x = 0.0;
+    }
+    if (isnan(m_fields->hsvl.y)) {
+        m_fields->hsvl.y = 0.0;
+    }
+    if (isnan(m_fields->hsvl.z)) {
+        m_fields->hsvl.z = 0.0;
+    }
     hsvlChanged(false, true);
 }
 

@@ -11,6 +11,9 @@
     "version": "v1.0.0",
     "developer": "FlowVix",
     "description": "Improves the editor color picker",
+    "links": {
+        "source": "https://github.com/FlowVix/betterpicker"
+    },
     "resources": {
         "sprites": ["resources/*.png"]
     },
