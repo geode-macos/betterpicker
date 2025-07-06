@@ -66,7 +66,6 @@ class $modify(MyCCControlColourPicker, CCControlColourPicker) {
     virtual void setColorValue(ccColor3B const& v);
 
     void hsvlChanged(bool setRgb, bool redrawSquare);
-
     void onOptions(CCObject* sender);
 };
 
@@ -281,6 +280,7 @@ void MyCCControlColourPicker::hsvlChanged(bool setRgb, bool redrawSquare) {
             }
         }
     }
+    // slider is cheap to draw so id rather always have it here than add another param that i could potentially mess up
     m_fields->sliderDraw->clear();
     for (int y = 0; y < 120; y += 1) {
         auto v = conv.toRgb(y / 120.f, 1.0, conv.sliderVL);
