@@ -62,7 +62,6 @@ class $modify(MyCCControlColourPicker, CCControlColourPicker) {
     };
 
     virtual bool init();
-    ccColor3B const& getColorValue() const;
     virtual void setColorValue(ccColor3B const& v);
 
     void hsvlChanged(bool setRgb, bool redrawSquare);
@@ -227,10 +226,6 @@ bool MyCCControlColourPicker::init() {
     addChild(m_fields->vlLabel);
 
     return true;
-}
-
-ccColor3B const& MyCCControlColourPicker::getColorValue() const {
-    return m_rgb;
 }
 
 void MyCCControlColourPicker::setColorValue(ccColor3B const& v) {
