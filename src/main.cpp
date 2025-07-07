@@ -120,9 +120,9 @@ bool MyCCControlColourPicker::init() {
 
     auto squareTouch = TouchArea::create(
         [this](CCPoint v) {
-            if (v.x >= 0.0 && v.x <= 120.0 && v.y >= 0.0 && v.y <= 120.0) {
-                m_fields->hsvl.y = v.x / 120.0;
-                m_fields->hsvl.z = v.y / 120.0;
+            if (v.x >= -5.0 && v.x <= 125.0 && v.y >= -5.0 && v.y <= 125.0) {
+                m_fields->hsvl.y = std::clamp(v.x, 0.f, 120.f) / 120.0;
+                m_fields->hsvl.z = std::clamp(v.y, 0.f, 120.f) / 120.0;
                 hsvlChanged(true, false);
 
                 return true;
@@ -138,8 +138,8 @@ bool MyCCControlColourPicker::init() {
     );
     auto sliderTouch = TouchArea::create(
         [this](CCPoint v) {
-            if (v.x >= 0.0 && v.x <= 20.0 && v.y >= 0.0 && v.y <= 120.0) {
-                m_fields->hsvl.x = v.y / 120.0;
+            if (v.x >= -5.0 && v.x <= 25.0 && v.y >= -5.0 && v.y <= 125.0) {
+                m_fields->hsvl.x = std::clamp(v.y, 0.f, 120.f) / 120.0;
                 m_fields->squareDrawThrottle = 0;
                 hsvlChanged(true, true);
 
