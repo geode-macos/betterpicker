@@ -69,7 +69,7 @@ bool MyCCControlColourPicker::init() {
         return false;
     }
 
-    if (LevelEditorLayer::get() == NULL) {
+    if (LevelEditorLayer::get() == nullptr) {
         return true;
     }
 
@@ -231,7 +231,7 @@ bool MyCCControlColourPicker::init() {
 }
 
 void MyCCControlColourPicker::setColorValue(ccColor3B const& v) {
-    if (LevelEditorLayer::get() == NULL) {
+    if (LevelEditorLayer::get() == nullptr) {
         return CCControlColourPicker::setColorValue(v);
     }
 
