@@ -1,3 +1,7 @@
+# 1.0.2
+
+-   Made the color picker only get replaced in the editor
+
 # 1.0.1
 
 -   Crossplatform support thanks to [hiimjasmine00](https://github.com/hiimjasmine00)

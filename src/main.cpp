@@ -73,6 +73,10 @@ bool MyCCControlColourPicker::init() {
         return false;
     }
 
+    if (LevelEditorLayer::get() == NULL) {
+        return true;
+    }
+
     getChildByType<CCSpriteBatchNode>(0)->setVisible(false);
     getChildByType<CCControlHuePicker>(0)->setVisible(false);
     getChildByType<CCControlSaturationBrightnessPicker>(0)->setVisible(false);
@@ -229,6 +233,10 @@ bool MyCCControlColourPicker::init() {
 }
 
 void MyCCControlColourPicker::setColorValue(ccColor3B const& v) {
+    if (LevelEditorLayer::get() == NULL) {
+        return CCControlColourPicker::setColorValue(v);
+    }
+
     m_rgb = v;
     m_delegate->colorValueChanged(m_rgb);
 
