@@ -1,13 +1,9 @@
 #include <Geode/Geode.hpp>
-#include <algorithm>
 
 using namespace geode::prelude;
 
 #include <Color.hpp>
 #include <Geode/modify/CCControlColourPicker.hpp>
-#include <Geode/modify/ColorSelectPopup.hpp>
-#include <Geode/modify/GJBaseGameLayer.hpp>
-#include <Geode/modify/MenuLayer.hpp>
 #include <Geode/ui/GeodeUI.hpp>
 #include <TouchArea.hpp>
 
@@ -229,6 +225,8 @@ bool MyCCControlColourPicker::init() {
     m_fields->vlLabel->setPosition(19, -57);
     addChild(m_fields->vlLabel);
 
+    hsvlChanged(false, true);
+
     return true;
 }
 
@@ -238,7 +236,9 @@ void MyCCControlColourPicker::setColorValue(ccColor3B const& v) {
     }
 
     m_rgb = v;
-    m_delegate->colorValueChanged(m_rgb);
+    if (m_delegate != nullptr) {
+        m_delegate->colorValueChanged(m_rgb);
+    }
 
     m_fields->hsvl = currentConvInfo().fromRgb((float)v.r / 255.f, (float)v.g / 255.f, (float)v.b / 255.f);
     if (isnan(m_fields->hsvl.x)) {
@@ -270,7 +270,9 @@ void MyCCControlColourPicker::hsvlChanged(bool setRgb, bool redrawSquare) {
 
     if (setRgb) {
         m_rgb = tripleToB(conv.toRgb(m_fields->hsvl.x, m_fields->hsvl.y, m_fields->hsvl.z));
-        m_delegate->colorValueChanged(m_rgb);
+        if (m_delegate != nullptr) {
+            m_delegate->colorValueChanged(m_rgb);
+        }
     }
 
     m_fields->pickerDot->setPosition(CCPoint(-80 + m_fields->hsvl.y * 120.0, -45 + m_fields->hsvl.z * 120.0));
