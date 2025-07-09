@@ -1,6 +1,7 @@
 # 1.0.2
 
 -   Made the color picker only get replaced in the editor
+-   Fixed some delegate null issues
 
 # 1.0.1
 
